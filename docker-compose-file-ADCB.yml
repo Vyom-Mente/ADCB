@@ -6,6 +6,6 @@ services:
     network_mode: host
     restart: always
     volumes:
-      - ./configuration:/opt/sas/viya/config/etc/boss # Mount your configuration
+      - ./configuration-RTD:/opt/sas/viya/config/etc/boss # Mount your configuration
     environment:
       - BOSS_CONTEXT_FILE=spring/activemq.xml
