@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring
+       http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://www.springframework.org/schema/lang 
+       http://www.springframework.org/schema/lang/spring-lang.xsd">
+
+	<!-- creating listner for SFM UI message QUEUE -->
+	<bean id="pooledConnectionFactory1" class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
+		<property name="maxConnections" value="10" />
+		<property name="maximumActiveSessionPerConnection" value="10" />
+		<property name="connectionFactory" >
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="failover:(tcp://${activemq_host_1}:${activemq_port},tcp://${activemq_host_2}:${activemq_port})?randomize=false" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="pooledConnectionFactory2" class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
+		<property name="maxConnections" value="10" />
+		<property name="maximumActiveSessionPerConnection" value="10" />
+		<property name="connectionFactory" >
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="failover:(tcp://${activemq_host_1}:${activemq_port},tcp://${activemq_host_2}:${activemq_port})?randomize=false" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="jmsConfig4ActiceMq1" class="org.apache.camel.component.jms.JmsConfiguration">
+		<property name="connectionFactory" ref="pooledConnectionFactory1" />
+		<property name="transacted" value="false" />
+		<property name="concurrentConsumers" value="2" />
+		<property name="maxConcurrentConsumers" value="10"/>
+		<property name="deliveryPersistent" value="true" />
+		<property name="requestTimeout" value="10000" />
+		<property name="cacheLevelName"  value="CACHE_CONSUMER" />
+		<property name="timeToLive" value="30000" />
+	</bean>
+
+	<bean id="jmsConfig4ActiceMq2" class="org.apache.camel.component.jms.JmsConfiguration">
+		<property name="connectionFactory" ref="pooledConnectionFactory2" />
+		<property name="transacted" value="false" />
+		<property name="concurrentConsumers" value="2" />
+		<property name="maxConcurrentConsumers" value="10"/>
+		<property name="deliveryPersistent" value="true" />
+		<property name="requestTimeout" value="10000" />
+		<property name="cacheLevelName"  value="CACHE_CONSUMER" />
+		<property name="timeToLive" value="30000" />
+	</bean>
+	
+	<bean id="activemq1" class="org.apache.camel.component.jms.JmsComponent">
+		<property name="configuration" ref="jmsConfig4ActiceMq1" />
+	</bean>
+
+	<bean id="activemq2" class="org.apache.camel.component.jms.JmsComponent">
+		<property name="configuration" ref="jmsConfig4ActiceMq2" />
+	</bean>
+	
+	<bean id="messageConverter" class="org.springframework.jms.support.converter.SimpleMessageConverter"/>
+	
+	<bean id="realTimeDemographicOutboundMapperCustomer" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_Customer}"/>
+    </bean>
+
+	<bean id="realTimeDemographicOutboundMapperAccount" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_Account}"/>
+    </bean>
+	<bean id="realTimeDemographicOutboundMapperCustomerAdib" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_Customer_Adib}"/>
+    </bean>
+	
+	<bean id="realTimeDemographicOutboundMapperAccountAdib" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_Account_Adib}"/>
+    </bean>
+	
+	<bean id="realTimeDemographicOutboundMapperUser" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_User}"/>
+    </bean>
+	
+	<bean id="realTimeDemographicOutboundMapperMerchant" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_Merchant}"/>
+    </bean>
+	
+	<bean id="realTimeDemographicOutboundMapperCards" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_Cards}"/>
+    </bean>
+	<!-- new added for debit card/-->
+	<bean id="realTimeDemographicOutboundMapperDebitCards" class="com.sas.finance.fraud.ol.demos.OutboundTemplateMapper">
+       <constructor-arg name="templateFilename" value="${real_time_demographic_response_template_DebitCards}"/>
+    </bean>
+
+	<routeContext id="activeMqRoutes" xmlns="http://camel.apache.org/schema/spring">
+
+		<route id="SFM_Real_Time_Demographic_1">
+            <from uri="activemq1:queue:{{saf_demographic_request_queue_name}}?disableReplyTo=true" />
+			
+  		    <setHeader headerName="JMSCorrelationID">
+                <simple>${header.JMSMessageID}</simple>
+            </setHeader>
+
+			<!-- Printing the body inside rtd.log /-->
+			<!--log message="Message in queue: ${body}" loggingLevel="INFO" /-->
+			<log message="RTD Request received from SFM UI" loggingLevel="INFO" />
+
+			<!--Calling groovy class to send JSON request for demographic details and receive response /-->
+			<bean ref="requestADIB" method="prepareADIBResponse"/>
+
+			<log message="Message in queue: ${body}" loggingLevel="INFO" />
+
+			<!--Transformation logic to retrieve info from incoming request and adding it into a map-->
+			<choice id="checkingEntityAccount1">
+				<when>
+					<simple>${body[/custType]} == 'I'</simple>
+					<choice id="checkingEntityAccount2">
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'A'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperAccount" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'X'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperCustomer" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'C'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperCards" method="map" />
+						</when>
+						<!--new added for debit card/-->
+					    <when>
+							<simple>${body[/entityRequest/entityType]} == 'D'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperDebitCards" method="map" />
+						</when>
+					</choice>	
+				</when>
+				<when>
+					<simple>${body[/custType]} == 'B'</simple>
+					<choice id="checkingEntityAccount3">
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'A'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperAccountAdib" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'X'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperCustomerAdib" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'M'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperMerchant" method="map" />
+						</when>
+						<!--new /-->
+					    <when>
+							<simple>${body[/entityRequest/entityType]} == 'D'</simple>
+							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperDebitCards" method="map" />
+						</when>
+					</choice>
+				</when>
+			</choice>
+			<log message="Message in queue 1: ${body}" loggingLevel="INFO" />
+
+			<!-- Placing the response in an XML format inside the reply queue of SFM UI -->
+			<to uri="activemq1:queue:{{saf_demographic_reply_queue_name}}?disableReplyTo=true"/>
+
+			<log message="RTD Response sent to SFM UI" loggingLevel="INFO" />
+
+		</route>
+
+		<route id="SFM_Real_Time_Demographic_2">
+            <from uri="activemq2:queue:{{saf_demographic_request_queue_name}}?disableReplyTo=true" />
+			
+  		    <setHeader headerName="JMSCorrelationID">
+                <simple>${header.JMSMessageID}</simple>
+            </setHeader>
+
+			<!-- Printing the body inside rtd.log /-->
+			<!--log message="Message in queue: ${body}" loggingLevel="INFO" /-->
+			<log message="RTD Request received from SFM UI" loggingLevel="INFO" />
+
+			<!--Calling groovy class to send JSON request for demographic details and receive response /-->
+			<bean ref="requestADIB" method="prepareADIBResponse"/>
+
+			<!--log message="Message in queue: ${body}" loggingLevel="INFO" /-->
+
+			<!--Transformation logic to retrieve info from incoming request and adding it into a map-->
+			<choice id="checkingEntityAccount4">
+				<when>
+					<simple>${body[/custType]} == 'I'</simple>
+					<choice id="checkingEntityAccount5">
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'A'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperAccount" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'X'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperCustomer" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'C'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperCards" method="map" />
+						</when>
+						<!--new /-->
+					    <when>
+							<simple>${body[/entityRequest/entityType]} == 'D'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperDebitCards" method="map" />
+						</when>
+					</choice>
+
+				</when>
+				<when>
+					<simple>${body[/custType]} == 'B'</simple>
+					<choice id="checkingEntityAccount6">
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'A'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperAccountAdib" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'X'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperCustomerAdib" method="map" />
+						</when>
+						<when>
+							<simple>${body[/entityRequest/entityType]} == 'M'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperMerchant" method="map" />
+						</when>
+						<!--new /-->
+					    <when>
+							<simple>${body[/entityRequest/entityType]} == 'D'</simple>
+							<bean id="realTimeDemographicObm2" ref="realTimeDemographicOutboundMapperDebitCards" method="map" />
+						</when>
+					</choice>
+				</when>
+			</choice>
+			<log message="Message in queue 2: ${body}" loggingLevel="INFO" />
+
+			<!-- Placing the response in an XML format inside the reply queue of SFM UI -->
+			<to uri="activemq2:queue:{{saf_demographic_reply_queue_name}}?disableReplyTo=true"/>
+
+			<log message="RTD Response sent to SFM UI" loggingLevel="INFO" />
+
+		</route>
+
+	</routeContext>
+
+</beans>
