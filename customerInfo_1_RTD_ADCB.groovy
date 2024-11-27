@@ -82,7 +82,7 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
 	   // Make the API call to fetch customer_info
 	   
 	    String customerId = EntityID;
-        String apiUrl = "https://devmag.adcb.com/v2/customer_info/customerId";
+        String apiUrl = "https://devmag.adcb.com/v2/customer_info?customerId";
 
         URL apiURL = new URL(apiUrl);
         HttpsURLConnection apiConnection = (HttpsURLConnection) apiURL.openConnection();
