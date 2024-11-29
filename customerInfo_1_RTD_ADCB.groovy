@@ -27,11 +27,11 @@ private static Map map1 = Collections.synchronizedMap(new HashMap());
 
 public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, String> map) throws IOException {
         
-		 Properties props = new Properties();
-        props.load(new FileInputStream("/usr/local/EOP/EOP-1.3.0/config/spring/camel-context.properties"));
+	//	 Properties props = new Properties();
+     //   props.load(new FileInputStream("")); // camel-context.properties path
 
         // SSL Configuration
-        String keyPath = "/usr/local/EOP/EOP-1.3.0/config/realtimedemo/rtdkeystore.jks";
+        String keyPath = ""; 
         String keyPass = "changeit";
         String keyType = "JKS";
         System.setProperty("javax.net.ssl.keyStore", keyPath);
@@ -39,8 +39,10 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
         System.setProperty("javax.net.ssl.keyStoreType", keyType);
 
         // OAuth 2.0 Token Retrieval
-        String clientId = props.getProperty("client_id");
-        String clientSecret = props.getProperty("client_secret");
+              // String clientId = props.getProperty("client_id");
+              //  String clientSecret = props.getProperty("client_secret");
+	    String clientId ="";
+	    String clientSecret = "";
         String tokenUrl = "https://devmag.adcb.com/auth/oauth/v2/token";
 
         URL tokenUrlObj = new URL(tokenUrl);
@@ -50,8 +52,8 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
         tokenConnection.setDoOutput(true);
 
         // Construct the token request body
-        String requestBody = "grant_type=client_credentials&client_id=" + URLEncoder.encode(clientId, "UTF-8") +
-                             "&client_secret=" + URLEncoder.encode(clientSecret, "UTF-8") +
+        String requestBody = "grant_type=client_credentials&client_id=" + URLEncoder.encode(clientId) +
+                             "&client_secret=" + URLEncoder.encode(clientSecret) +
                              "&scope=Accounts";
 
         // Send token request
@@ -82,7 +84,7 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
 	   // Make the API call to fetch customer_info
 	   
 	    String customerId = EntityID;
-        String apiUrl = "https://devmag.adcb.com/v2/customer_info?customerId";
+        String apiUrl = "https://devmag.adcb.com/v2/customer_info?CustomerId=" + customerId;
 
         URL apiURL = new URL(apiUrl);
         HttpsURLConnection apiConnection = (HttpsURLConnection) apiURL.openConnection();
@@ -151,7 +153,6 @@ apiConnection.disconnect();
 return map;
     }
 
-
   
 
 
@@ -168,6 +169,10 @@ public void prepareADCBResponse(Exchange exchange) {
 
 		String entityType = null;
 		String entityID = null;
+		String multiOrg = null;
+		String username = null;
+		String contactID = null;
+		String contactType = null;
 		try 
 			{
 				doc.getDocumentElement().normalize();
@@ -177,6 +182,12 @@ public void prepareADCBResponse(Exchange exchange) {
 					Element eElement = (Element) nNode;
 					entityType = (eElement.getElementsByTagName("entityType")).item(0).getTextContent();
 			        entityID = (eElement.getElementsByTagName("entityID")).item(0).getTextContent();
+					multiOrg = (eElement.getElementsByTagName("multiOrg")).item(0).getTextContent();
+					username = (eElement.getElementsByTagName("username")).item(0).getTextContent(); /* Release 2 Addition*/
+					if((eElement.getElementsByTagName("contactID").item(0)) != null)
+					{	contactID = (eElement.getElementsByTagName("contactID")).item(0).getTextContent(); }
+					if((eElement.getElementsByTagName("contactType")).item(0) != null)
+					{	contactType = (eElement.getElementsByTagName("contactType")).item(0).getTextContent(); }
 						
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -190,7 +201,7 @@ public void prepareADCBResponse(Exchange exchange) {
 						@Override
 						public void run() {
 							try {
-								MultifetchAccountInfo m1= new MultifetchAccountInfo();
+								MultifetchAccountInfo m1= new MultifetchAccountInfo(entityID);
 								Thread t1= new Thread(m1);
 								
 								t1.start(); 
@@ -217,7 +228,7 @@ public void prepareADCBResponse(Exchange exchange) {
 						@Override
 						public void run() {
 							try {
-								MultifetchCustomerInfo m2= new MultifetchCustomerInfo();
+								MultifetchCustomerInfo m2= new MultifetchCustomerInfo(entityID);
 								Thread t2= new Thread(m2);
 								
 								
@@ -267,10 +278,32 @@ public void prepareADCBResponse(Exchange exchange) {
 		                  */
 }
 map.putAll(map1);
+
+
+	if (contactType == null)
+			contactType = "Customer Id Missing";
+		if (contactID == null)
+			contactID = "Customer Id Missing";
+
+		if (entityType == 'X')
+		{
+			contactType = entityType;
+			contactID = entityID;	
+		}
+			
+		map.put("/entityRequest/entityType", entityType);
+		map.put("/entityRequest/entityID", entityID);
+		map.put("/entityRequest/multiOrg", multiOrg);
+		map.put("/entityRequest/contactID", contactID);
+		map.put("/entityRequest/contactType", contactType);
+		
+		if(responseStatus == "SUCCESS")
+			exchange.getIn().setBody(map);
+
     
 }
 
-
+}
 
 
 
