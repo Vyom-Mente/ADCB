@@ -7,24 +7,55 @@
 	<blockGroupCode/>
 
 	<detailGroup name="demographic">
-		<detail name="ACCOUNT_ID">${Account_0_AccountId}</detail>
-		<detail name="ACCOUNT_STATUS">${Account_0_Status}</detail>
-		<detail name="ACCOUNT_TYPE">${Account_0_AccountType}</detail>
-		<detail name="ACCOUNT_TYPE_Description">${Account_0_Description}</detail>
-		<detail name="ACCOUNT_CURRENCY">${Account_0_Currency}</detail>
-		<detail name="Maturity_Date">${Account_0_OpeningDate}</detail>
-		<detail name="ACCOUNT_BALANCE">${"Acct_0_Balance_Amount}</detail>
-		<detail name="EFFECTIVE_ACCT_BAL">${Acct_0_Balance_AmountAvailable}</detail>
+		<detail name="ACCOUNT_0_ID">${Account_0_AccountId}</detail>
+		<detail name="ACCOUNT_0_STATUS">${Account_0_Status}</detail>
+		<detail name="ACCOUNT_0_TYPE">${Account_0_AccountType}</detail>
+		<detail name="ACCOUNT_0_TYPE_Description">${Account_0_Description}</detail>
+		<detail name="ACCOUNT_0_CURRENCY">${Account_0_Currency}</detail>
+		<detail name="ACCOUNT_0_OPEN_DATE">${Account_0_OpeningDate}</detail>
+		<detail name="ACCOUNT_0_BALANCE">${"Acct_0_Balance_Amount}</detail>
+		<detail name="EFFECTIVE_ACCT_0_BAL">${Acct_0_Balance_AmountAvailable}</detail>
 		
         
-		<detail name="ACCOUNT_ID">${Account_1_AccountId}</detail>
-		<detail name="ACCOUNT_STATUS">${Account_1_Status}</detail>
-		<detail name="ACCOUNT_TYPE">${Account_1_AccountType}</detail>
-		<detail name="ACCOUNT_TYPE_Description">${Account_1_Description}</detail>
-		<detail name="ACCOUNT_CURRENCY">${Account_1_Currency}</detail>
-		<detail name="Maturity_Date">${Account_1_OpeningDate}</detail>
-		<detail name="ACCOUNT_BALANCE">${"Acct_1_Balance_Amount}</detail>
-		<detail name="EFFECTIVE_ACCT_BAL">${Acct_1_Balance_AmountAvailable}</detail>
+		<detail name="ACCOUNT_1_ID">${Account_1_AccountId}</detail>
+		<detail name="ACCOUNT_1_STATUS">${Account_1_Status}</detail>
+		<detail name="ACCOUNT_1_TYPE">${Account_1_AccountType}</detail>
+		<detail name="ACCOUNT_1_TYPE_Description">${Account_1_Description}</detail>
+		<detail name="ACCOUNT_1_CURRENCY">${Account_1_Currency}</detail>
+		<detail name="ACCOUNT_1_OPEN_DATE">${Account_1_OpeningDate}</detail>
+		<detail name="ACCOUNT_1_BALANCE">${"Acct_1_Balance_Amount}</detail>
+		<detail name="EFFECTIVE_ACCT_1_BAL">${Acct_1_Balance_AmountAvailable}</detail>
+		
+		
+		
+		<detail name="ACCOUNT_2_ID">${Account_2_AccountId}</detail>
+		<detail name="ACCOUNT_2_STATUS">${Account_2_Status}</detail>
+		<detail name="ACCOUNT_2_TYPE">${Account_2_AccountType}</detail>
+		<detail name="ACCOUNT_2_TYPE_Description">${Account_2_Description}</detail>
+		<detail name="ACCOUNT_2_CURRENCY">${Account_2_Currency}</detail>
+		<detail name="ACCOUNT_2_OPEN_DATE">${Account_2_OpeningDate}</detail>
+		<detail name="ACCOUNT_2_BALANCE">${"Acct_2_Balance_Amount}</detail>
+		<detail name="EFFECTIVE_ACCT_2_BAL">${Acct_2_Balance_AmountAvailable}</detail>
+		
+		
+		<detail name="ACCOUNT_3_ID">${Account_3_AccountId}</detail>
+		<detail name="ACCOUNT_3_STATUS">${Account_3_Status}</detail>
+		<detail name="ACCOUNT_3_TYPE">${Account_3_AccountType}</detail>
+		<detail name="ACCOUNT_3_TYPE_Description">${Account_3_Description}</detail>
+		<detail name="ACCOUNT_3_CURRENCY">${Account_3_Currency}</detail>
+		<detail name="ACCOUNT_3_OPEN_DATE">${Account_3_OpeningDate}</detail>
+		<detail name="ACCOUNT_3_BALANCE">${"Acct_3_Balance_Amount}</detail>
+		<detail name="EFFECTIVE_ACCT_3_BAL">${Acct_3_Balance_AmountAvailable}</detail>
+		
+		
+		<detail name="ACCOUNT_4_ID">${Account_4_AccountId}</detail>
+		<detail name="ACCOUNT_4_STATUS">${Account_4_Status}</detail>
+		<detail name="ACCOUNT_4_TYPE">${Account_4_AccountType}</detail>
+		<detail name="ACCOUNT_4_TYPE_Description">${Account_4_Description}</detail>
+		<detail name="ACCOUNT_4_CURRENCY">${Account_4_Currency}</detail>
+		<detail name="ACCOUNT_4_OPEN_DATE">${Account_4_OpeningDate}</detail>
+		<detail name="ACCOUNT_4_BALANCE">${"Acct_4_Balance_Amount}</detail>
+		<detail name="EFFECTIVE_ACCT_4_BAL">${Acct_4_Balance_AmountAvailable}</detail>
 		
 		
 	</detailGroup>
