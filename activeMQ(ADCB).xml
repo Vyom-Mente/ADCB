@@ -25,7 +25,7 @@
 			<log message="RTD Request received from SFM UI" loggingLevel="INFO" />
 
 			<!--Calling groovy class to send JSON request for demographic details and receive response /-->
-			<bean ref="requestADIB" method="prepareADIBResponse"/>
+			<bean ref="requestADCB" method="prepareADCBResponse"/>
 
 			<!--log message="Message in queue: ${body}" loggingLevel="INFO" /-->
 
@@ -39,13 +39,6 @@
 							<simple>${body[/entityRequest/entityType]} == 'X'</simple>
 							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperCustomer" method="map" />
 						</when>
-						
-<!-- **********************************************bean id added for TSYS Cards issuing **********************************************/-->						
-						<when>						
-							<simple>${body[/entityRequest/entityType]} == 'C'</simple>
-							<bean id="realTimeDemographicObm1" ref="realTimeDemographicOutboundMapperCards" method="map" />
-						</when>
-
 						
 					</choice>
 					
