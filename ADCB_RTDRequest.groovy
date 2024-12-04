@@ -44,7 +44,10 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
 	    String clientId ="";
 		String clientSecret = "";
         String tokenUrl = "https://devmag.adcb.com/auth/oauth/v2/token";
-
+        
+		
+System.out.println("Preparing to hit the token URL: " + tokenUrl);
+		
         URL tokenUrlObj = new URL(tokenUrl);
         HttpsURLConnection tokenConnection = (HttpsURLConnection) tokenUrlObj.openConnection();
         tokenConnection.setRequestMethod("POST");
@@ -52,16 +55,21 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
         tokenConnection.setDoOutput(true);
 
         // Construct the token request body
-        String requestBody = "grant_type=client_credentials&client_id=" + URLEncoder.encode(clientId) +
-                             "&client_secret=" + URLEncoder.encode(clientSecret) +
+        String requestBody = "grant_type=client_credentials&client_id=" + clientId +
+                             "&client_secret=" + clientSecret +
                              "&scope=Accounts";
+
+System.out.println("Token request body prepared: " + requestBody);
+
 
         // Send token request
         try (OutputStream os = tokenConnection.getOutputStream()) {
-            os.write(requestBody.getBytes("utf-8"));
+            System.out.println("Sending token request...");
+			os.write(requestBody.getBytes("utf-8"));
         }
 
         // Parse the token response
+		System.out.println("Waiting for token response...");
         BufferedReader tokenReader = new BufferedReader(new InputStreamReader(tokenConnection.getInputStream()));
         StringBuilder tokenContent = new StringBuilder();
         String inputLine;
@@ -70,6 +78,7 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
         }
         tokenReader.close();
 
+System.out.println("Token response received: " + tokenContent.toString());
         // Extract the access token from the response JSON
         String accessToken = new JSONObject(tokenContent.toString()).getString("access_token");
         tokenConnection.disconnect();
@@ -78,13 +87,16 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
             throw new IOException("Failed to obtain access token");
         }
       
-	  
+	  System.out.println("Access token obtained: " + accessToken);
 	  
 	  
 	   // Make the API call to fetch customer_info
 	   
 	    String customerId = EntityID;
         String apiUrl = "https://devmag.adcb.com/v2/customer_info?CustomerId=" + customerId;
+		
+		System.out.println("Preparing to hit the customer info API URL: " + apiUrl);
+
 
         URL apiURL = new URL(apiUrl);
         HttpsURLConnection apiConnection = (HttpsURLConnection) apiURL.openConnection();
@@ -98,6 +110,9 @@ public static Map<String, String> fetchCustomerInfo(String EntityID,Map<String, 
   
 
         // Reading JSON response
+		System.out.println("Reading response from customer info API...");
+
+		
         InputStreamReader reader = new InputStreamReader(apiConnection.getInputStream());
         StringBuilder buf = new StringBuilder();
         char[] cbuf = new char[2048];
@@ -172,6 +187,9 @@ public static Map<String, String> fetchAccountInfo(String EntityID,Map<String, S
 	    String clientId ="";
 		String clientSecret ="";
         String tokenUrl = "https://devmag.adcb.com/auth/oauth/v2/token";
+		
+		System.out.println("Preparing to hit the token URL: " + tokenUrl);
+
 
         URL tokenUrlObj = new URL(tokenUrl);
         HttpsURLConnection tokenConnection = (HttpsURLConnection) tokenUrlObj.openConnection();
@@ -180,12 +198,16 @@ public static Map<String, String> fetchAccountInfo(String EntityID,Map<String, S
         tokenConnection.setDoOutput(true);
 
         // Construct the token request body
-        String requestBody = "grant_type=client_credentials&client_id=" + URLEncoder.encode(clientId) +
-                             "&client_secret=" + URLEncoder.encode(clientSecret) +
+        String requestBody = "grant_type=client_credentials&client_id=" + clientId +
+                             "&client_secret=" + clientSecret+
                              "&scope=Accounts";
+        
+		System.out.println("Token request body prepared: " + requestBody);
 
+		
         // Send token request
         try (OutputStream os = tokenConnection.getOutputStream()) {
+            System.out.println("Sending token request...");
             os.write(requestBody.getBytes("utf-8"));
         }
 
@@ -197,6 +219,8 @@ public static Map<String, String> fetchAccountInfo(String EntityID,Map<String, S
             tokenContent.append(inputLine);
         }
         tokenReader.close();
+        
+		System.out.println("Token response received: " + tokenContent.toString());
 
         // Extract the access token from the response JSON
         String accessToken = new JSONObject(tokenContent.toString()).getString("access_token");
@@ -205,11 +229,16 @@ public static Map<String, String> fetchAccountInfo(String EntityID,Map<String, S
         if (accessToken == null || accessToken.isEmpty()) {
             throw new IOException("Failed to obtain access token");
         }
+          
+		  System.out.println("Access token obtained: " + accessToken);
 
         // Make the API call to fetch account info
 		String customerId =  EntityID ;
         String apiUrl = "https://devmag.adcb.com/v2/accounts/inquiry?CustomerId=" + customerId;
+        
+		System.out.println("Preparing to hit the customer info API URL: " + apiUrl);
 
+		
         URL apiURL = new URL(apiUrl);
         HttpsURLConnection apiConnection = (HttpsURLConnection) apiURL.openConnection();
         apiConnection.setRequestProperty("Content-Type", "application/json");
@@ -220,6 +249,8 @@ public static Map<String, String> fetchAccountInfo(String EntityID,Map<String, S
         System.out.println("Connection established to " + apiUrl);
 
         // Reading JSON response
+		System.out.println("Reading response from customer info API...");
+
         InputStreamReader reader = new InputStreamReader(apiConnection.getInputStream());
         StringBuilder buf = new StringBuilder();
         char[] cbuf = new char[2048];
@@ -296,7 +327,8 @@ public static Map<String, String> fetchBalanceInfo(String EntityID,Map<String, S
 		  String clientId = "";
 		  String clientSecret = "";
             String tokenUrl = "https://devmag.adcb.com/auth/oauth/v2/token";
-
+            System.out.println("Preparing to hit the token URL: " + tokenUrl);
+			
             URL tokenUrlObj = new URL(tokenUrl);
             HttpsURLConnection tokenConnection = (HttpsURLConnection) tokenUrlObj.openConnection();
             tokenConnection.setRequestMethod("POST");
@@ -307,10 +339,12 @@ public static Map<String, String> fetchBalanceInfo(String EntityID,Map<String, S
             String requestBody = "grant_type=client_credentials&client_id=" + URLEncoder.encode(clientId) +
                                  "&client_secret=" + URLEncoder.encode(clientSecret) +
                                  "&scope=" + URLEncoder.encode("AccountBalancesDetails", "UTF-8");
+                    System.out.println("Token request body prepared: " + requestBody);
 
             // Send token request
             try (OutputStream os = tokenConnection.getOutputStream()) {
-                os.write(requestBody.getBytes("utf-8"));
+                System.out.println("Sending token request...");
+				os.write(requestBody.getBytes("utf-8"));
             }
 
             // Parse the token response
@@ -321,6 +355,7 @@ public static Map<String, String> fetchBalanceInfo(String EntityID,Map<String, S
                 tokenContent.append(inputLine);
             }
             tokenReader.close();
+            System.out.println("Token response received: " + tokenContent.toString());
 
             // Extract the access token from the response JSON
             String accessToken = new JSONObject(tokenContent.toString()).getString("access_token");
@@ -329,10 +364,11 @@ public static Map<String, String> fetchBalanceInfo(String EntityID,Map<String, S
             if (accessToken == null || accessToken.isEmpty()) {
                 throw new IOException("Failed to obtain access token");
             }
-
+            System.out.println("Access token obtained: " + accessToken);
             // Make the API call to fetch balance info
             String customerId = EntityID ; // Example Customer ID for successful response
             String apiUrl = "https://devmag.adcb.com/v2/balances?CustomerId=" + customerId;
+               System.out.println("Preparing to hit the customer info API URL: " + apiUrl);
 
             URL apiURL = new URL(apiUrl);
             HttpsURLConnection apiConnection = (HttpsURLConnection) apiURL.openConnection();
@@ -344,6 +380,7 @@ public static Map<String, String> fetchBalanceInfo(String EntityID,Map<String, S
             System.out.println("Connection established to " + apiUrl);
 
        // Reading JSON response
+	   System.out.println("Reading response from customer info API...");
 InputStreamReader reader = new InputStreamReader(apiConnection.getInputStream());
 StringBuilder buf = new StringBuilder();
 char[] cbuf = new char[2048];
